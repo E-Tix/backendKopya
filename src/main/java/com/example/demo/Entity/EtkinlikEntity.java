@@ -1,11 +1,10 @@
 package com.example.demo.Entity;
 
-import com.example.demo.Dto.Request.SeansEkleDto;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
-import java.util.List;
+
 
 @Entity
 @Table(name = "etkinlik")
@@ -18,14 +17,17 @@ public class EtkinlikEntity {
     //@OneToMany(mappedBy = "etkinlik")
     //private List<EtkinlikSalonSeansEntity> etkinlikSalonSeansEntityList;
 
-    @ManyToOne
-    OrganizatorEntity organizator;
+    @Column
+    private boolean etkinlikSilindiMi;
 
     @ManyToOne
-    EtkinlikTurEntity etkinlikTur;
+    private OrganizatorEntity organizator;
 
     @ManyToOne
-    SehirEntity sehir;
+    private EtkinlikTurEntity etkinlikTur;
+
+    @ManyToOne
+    private SehirEntity sehir;
 
     @Column(name = "etkinlikAdi",nullable = false)
     private String etkinlikAdi;
@@ -67,6 +69,22 @@ public class EtkinlikEntity {
         this.biletFiyati = biletFiyati;
     }
 
+    public EtkinlikEntity(Long etkinlikID, boolean etkinlikSilindiMi, OrganizatorEntity organizator, EtkinlikTurEntity etkinlikTur, SehirEntity sehir, String etkinlikAdi, String kapakFotografi, String etkinlikAciklamasi, int yasSiniri, int etkinlikSuresi, Timestamp olusturulmaTarihi, boolean tarihiGectiMi, float biletFiyati) {
+        this.etkinlikID = etkinlikID;
+        this.etkinlikSilindiMi = etkinlikSilindiMi;
+        this.organizator = organizator;
+        this.etkinlikTur = etkinlikTur;
+        this.sehir = sehir;
+        this.etkinlikAdi = etkinlikAdi;
+        this.kapakFotografi = kapakFotografi;
+        this.etkinlikAciklamasi = etkinlikAciklamasi;
+        this.yasSiniri = yasSiniri;
+        this.etkinlikSuresi = etkinlikSuresi;
+        this.olusturulmaTarihi = olusturulmaTarihi;
+        this.tarihiGectiMi = tarihiGectiMi;
+        this.biletFiyati = biletFiyati;
+    }
+
     //EtkinlikEkleDto için
     public EtkinlikEntity(OrganizatorEntity organizator,EtkinlikTurEntity etkinlikTur, SehirEntity sehir, String etkinlikAdi, String kapakFotografi, String etkinlikAciklamasi, int yasSiniri, int etkinlikSuresi, float biletFiyati) {
         this.organizator=organizator;
@@ -81,6 +99,14 @@ public class EtkinlikEntity {
     }
 
     public EtkinlikEntity(){}
+
+    public boolean isEtkinlikSilindiMi() {
+        return etkinlikSilindiMi;
+    }
+
+    public void setEtkinlikSilindiMi(boolean etkinlikSilindiMi) {
+        this.etkinlikSilindiMi = etkinlikSilindiMi;
+    }
 
     public Long getEtkinlikID() {
         return etkinlikID;

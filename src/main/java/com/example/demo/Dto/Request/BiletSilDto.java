@@ -7,6 +7,9 @@ public class BiletSilDto {
         this.biletId = biletId;
     }
 
+    public BiletSilDto() {
+    }
+
     public long getBiletId() {
         return biletId;
     }
