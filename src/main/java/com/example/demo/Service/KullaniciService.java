@@ -1,15 +1,14 @@
 package com.example.demo.Service;
 
 import com.example.demo.Dto.Request.ChangePasswordDto;
-import com.example.demo.Dto.KullaniciProfiliDto;
 import com.example.demo.Dto.Request.SeansDto;
+import com.example.demo.Dto.KullaniciProfiliDto;
 import com.example.demo.Dto.Response.BiletDto;
 import com.example.demo.Dto.Response.SalonDto;
 import com.example.demo.Dto.Response.SehirDto;
 import com.example.demo.Entity.*;
 import com.example.demo.Repository.*;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.Transient;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -22,7 +21,6 @@ import java.util.Optional;
 @Service
 public class KullaniciService {
 
-
     private final KullaniciRepository kullaniciRepository;
     private final BiletRepository biletRepository;
     private final SehirRepository sehirRepository;
@@ -31,94 +29,65 @@ public class KullaniciService {
     private final SeansKoltukBiletRepository seansKoltukBiletRepository;
 
     @Autowired
-    public KullaniciService(SehirRepository sehirRepository,EtkinlikSalonSeansRepository etkinlikSalonSeansRepository,SeansKoltukBiletRepository seansKoltukBiletRepository,KullaniciRepository kullaniciRepository,BiletRepository biletRepository,KullaniciBiletRepository kullaniciBiletRepository){
-        this.sehirRepository=sehirRepository;
-        this.etkinlikSalonSeansRepository=etkinlikSalonSeansRepository;
-        this.seansKoltukBiletRepository=seansKoltukBiletRepository;
-        this.kullaniciRepository=kullaniciRepository;
-        this.kullaniciBiletRepository=kullaniciBiletRepository;
-        this.biletRepository=biletRepository;
-    }
-
-    public boolean kullaniciEkle(KullaniciEntity kullanici)
-    {
-        kullaniciRepository.save(kullanici);
-        return true;
+    public KullaniciService(
+            SehirRepository sehirRepository,
+            EtkinlikSalonSeansRepository etkinlikSalonSeansRepository,
+            SeansKoltukBiletRepository seansKoltukBiletRepository,
+            KullaniciRepository kullaniciRepository,
+            BiletRepository biletRepository,
+            KullaniciBiletRepository kullaniciBiletRepository
+    ) {
+        this.sehirRepository = sehirRepository;
+        this.etkinlikSalonSeansRepository = etkinlikSalonSeansRepository;
+        this.seansKoltukBiletRepository = seansKoltukBiletRepository;
+        this.kullaniciRepository = kullaniciRepository;
+        this.kullaniciBiletRepository = kullaniciBiletRepository;
+        this.biletRepository = biletRepository;
     }
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
-    public boolean changePassword(ChangePasswordDto changePasswordDto, Long id) {
+    public boolean changePassword(ChangePasswordDto dto, Long id) {
         KullaniciEntity kullanici = kullaniciRepository.findByKullaniciID(id);
-        if (kullanici != null) {
-            System.out.println("Kullanıcı bulundu: " + kullanici.getKullaniciAdi());
+        if (kullanici == null) return false;
 
-            if (passwordEncoder.matches(changePasswordDto.getEskiSifre(), kullanici.getSifre())) {
-                System.out.println("Eski şifre doğru");
+        if (!passwordEncoder.matches(dto.getEskiSifre(), kullanici.getSifre())) return false;
+        if (!dto.getYeniSifre().equals(dto.getYeniSifreTekrar())) return false;
 
-                if (changePasswordDto.getYeniSifre().equals(changePasswordDto.getYeniSifreTekrar())) {
-                    kullanici.setSifre(passwordEncoder.encode(changePasswordDto.getYeniSifre()));
-                    kullaniciRepository.save(kullanici);
-                    System.out.println("Şifre başarıyla güncellendi");
-                    return true;
-                } else {
-                    System.out.println("Yeni şifreler uyuşmuyor");
-                    return false;
-                }
-            } else {
-                System.out.println("Eski şifre hatalı");
-                return false;
-            }
-        } else {
-            System.out.println("Kullanıcı bulunamadı");
-            return false;
-        }
+        kullanici.setSifre(passwordEncoder.encode(dto.getYeniSifre()));
+        kullaniciRepository.save(kullanici);
+        return true;
     }
 
     public List<BiletDto> getBiletler(Long kullaniciId) {
         List<BiletDto> biletDtoList = new ArrayList<>();
 
-        List<BiletEntity> kullaniciyaAitBiletler =
-                kullaniciBiletRepository.findBiletlerByKullanici(kullaniciId);
+        List<BiletEntity> biletler = kullaniciBiletRepository.findBiletlerByKullanici(kullaniciId);
+        for (BiletEntity b : biletler) {
+            // skip if canceled or cancellation requested
+            if (b.isIptalEdildiMi()) continue;
+            Optional<KullaniciBiletEntity> kbOpt = kullaniciBiletRepository.findByBilet(b);
+            if (kbOpt.isEmpty() || kbOpt.get().isIptalIstendiMi()) continue;
 
-<<<<<<< Updated upstream
-        for (BiletEntity b:kullaniciyaAitBiletler)
-        {
-            if (!b.isIptalEdildiMi()||!kullaniciBiletRepository.findByBilet_BiletID(b.getBiletID()).isIptalIstendiMi())
-            {
-                seansKoltukBilet=seansKoltukBiletRepository.findSeansKoltukBiletEntityByBilet(b);
-                etkinlikSalonSeans=etkinlikSalonSeansRepository.findEtkinlikSalonSeansEntityBySeans(seansKoltukBilet.getSeans());
-
-                biletDtoList.add(new BiletDto(
-                        b.getBiletID(),
-                        b.getOdenenMiktar(),
-                        seansKoltukBilet.getKoltuk().getKoltukNumarasi(),
-                        etkinlikSalonSeans.getEtkinlik().getEtkinlikAdi(),
-                        new SehirDto(etkinlikSalonSeans.getEtkinlik().getSehir().getPlakaKodu(),etkinlikSalonSeans.getEtkinlik().getSehir().getSehirAdi()),
-                        new SalonDto(etkinlikSalonSeans.getSalon().getSalonID(),etkinlikSalonSeans.getSalon().getSalonAdi(),etkinlikSalonSeans.getSalon().getAdres()),
-                        etkinlikSalonSeans.getSeans()
-                ));
-            }
-=======
-        for (BiletEntity b : kullaniciyaAitBiletler) {
-            // artık Optional dönüyor:
-            Optional<SeansKoltukBiletEntity> optSkb = seansKoltukBiletRepository.findByBilet(b);
-            if (optSkb.isEmpty()) {
-                // log veya warn atıp atlıyoruz
+            // find the SeansKoltukBilet
+            Optional<SeansKoltukBiletEntity> skbOpt = seansKoltukBiletRepository.findByBilet(b);
+            if (skbOpt.isEmpty()) {
                 System.err.println("Uyarı: SeansKoltukBiletEntity bulunamadı for BiletID=" + b.getBiletID());
                 continue;
             }
-            SeansKoltukBiletEntity skb = optSkb.get();
+            SeansKoltukBiletEntity skb = skbOpt.get();
 
-            EtkinlikSalonSeansEntity ess = etkinlikSalonSeansRepository
-                    .findEtkinlikSalonSeansEntityBySeans(skb.getSeans());
+            // find the event/session mapping
+            EtkinlikSalonSeansEntity ess =
+                    etkinlikSalonSeansRepository.findEtkinlikSalonSeansEntityBySeans(skb.getSeans());
             if (ess == null) {
-                System.err.println("Uyarı: EtkinlikSalonSeansEntity bulunamadı for SeansID=" + skb.getSeans().getSeansID());
+                System.err.println("Uyarı: EtkinlikSalonSeansEntity bulunamadı for SeansID=" +
+                        skb.getSeans().getSeansID());
                 continue;
             }
 
-            // Seans → SeansDto
+            // build SeansDto
             SeansEntity seansEnt = ess.getSeans();
             SeansDto seansDto = new SeansDto(
                     seansEnt.getSeansID(),
@@ -128,61 +97,48 @@ public class KullaniciService {
                     seansEnt.getOlusturulmaTarihi()
             );
 
+            // assemble BiletDto
             biletDtoList.add(new BiletDto(
-                                            b.getBiletID(),
+                    b.getBiletID(),
                     skb.getKoltuk().getKoltukNumarasi(),
                     ess.getEtkinlik().getEtkinlikAdi(),
                     new SehirDto(
-                                                    ess.getEtkinlik().getSehir().getPlakaKodu(),
-                                                    ess.getEtkinlik().getSehir().getSehirAdi()
-                                            ),
+                            ess.getEtkinlik().getSehir().getPlakaKodu(),
+                            ess.getEtkinlik().getSehir().getSehirAdi()
+                    ),
                     new SalonDto(
-                                                    ess.getSalon().getSalonID(),
-                                                    ess.getSalon().getSalonAdi(),
-                                                    ess.getSalon().getAdres()
-                                            ),
+                            ess.getSalon().getSalonID(),
+                            ess.getSalon().getSalonAdi(),
+                            ess.getSalon().getAdres()
+                    ),
                     seansDto,
                     b.getOdenenMiktar()
-                                    ));
->>>>>>> Stashed changes
+            ));
         }
 
         return biletDtoList;
     }
 
-
-
-    public KullaniciProfiliDto getKullaniciProfili(Long id)
-    {
+    public KullaniciProfiliDto getKullaniciProfili(Long id) {
         KullaniciEntity kullanici = kullaniciRepository.findByKullaniciID(id);
-        if (kullanici==null){
-            throw new EntityNotFoundException("kullanıcı bulunamadı");
+        if (kullanici == null) {
+            throw new EntityNotFoundException("Kullanıcı bulunamadı");
         }
-        return new KullaniciProfiliDto(kullanici.getAdSoyad(), kullanici.getKullaniciAdi(), kullanici.getEmail(), kullanici.getSehir(), kullanici.getTelNo());
+        return new KullaniciProfiliDto(
+                kullanici.getAdSoyad(),
+                kullanici.getKullaniciAdi(),
+                kullanici.getEmail(),
+                kullanici.getSehir(),
+                kullanici.getTelNo()
+        );
     }
-    public long getUserIdByUsername(String username){
+
+    public long getUserIdByUsername(String username) {
         return kullaniciRepository.getUserIdByKullaniciAdi(username);
     }
 
-    public boolean kullaniciProfiliDuzenle(KullaniciProfiliDto kullaniciProfiliDto,Long id)
-    {
-        KullaniciEntity kullanici=kullaniciRepository.findByKullaniciID(id);
-        if (kullanici==null)
-        {
-            return false;
-        }else {
-            kullanici.setAdSoyad(kullaniciProfiliDto.getAdSoyad());
-            kullanici.setEmail(kullaniciProfiliDto.getEmail());
-            kullanici.setSehir(kullaniciProfiliDto.getSehir());
-            kullanici.setTelNo(kullaniciProfiliDto.getTelNo());
-            kullaniciRepository.save(kullanici);
-
-            return true;
-        }
-    }
-
     @Transactional
-    public boolean kullaniciSehirDuzenle(Long userId, SehirDto sehirDto){
+    public boolean kullaniciSehirDuzenle(Long userId, SehirDto sehirDto) {
         KullaniciEntity kullanici = kullaniciRepository.findByKullaniciID(userId);
         kullanici.setSehir(sehirRepository.findByPlakaKodu(sehirDto.getPlakaKodu()));
         kullaniciRepository.save(kullanici);

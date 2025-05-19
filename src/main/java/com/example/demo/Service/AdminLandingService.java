@@ -6,7 +6,6 @@ import com.example.demo.Repository.BiletRepository;
 import com.example.demo.Repository.EtkinlikSalonSeansRepository;
 import com.example.demo.Repository.KullaniciBiletRepository;
 import com.example.demo.Repository.SeansKoltukBiletRepository;
-import jakarta.persistence.Transient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,145 +21,109 @@ public class AdminLandingService {
     private final EtkinlikSalonSeansRepository etkinlikSalonSeansRepository;
     private final MailService mailService;
 
-    public AdminLandingService(MailService mailService,EtkinlikSalonSeansRepository etkinlikSalonSeansRepository, KullaniciBiletRepository kullaniciBiletRepository, SeansKoltukBiletRepository seansKoltukBiletRepository, BiletRepository biletRepository)
-    {
-        this.mailService=mailService;
-        this.etkinlikSalonSeansRepository=etkinlikSalonSeansRepository;
-        this.kullaniciBiletRepository=kullaniciBiletRepository;
-        this.biletRepository=biletRepository;
-        this.seansKoltukBiletRepository=seansKoltukBiletRepository;
+    public AdminLandingService(
+            MailService mailService,
+            EtkinlikSalonSeansRepository etkinlikSalonSeansRepository,
+            KullaniciBiletRepository kullaniciBiletRepository,
+            SeansKoltukBiletRepository seansKoltukBiletRepository,
+            BiletRepository biletRepository
+    ) {
+        this.mailService = mailService;
+        this.etkinlikSalonSeansRepository = etkinlikSalonSeansRepository;
+        this.kullaniciBiletRepository = kullaniciBiletRepository;
+        this.biletRepository = biletRepository;
+        this.seansKoltukBiletRepository = seansKoltukBiletRepository;
     }
-
 
     public List<SilinecekBiletDto> getSilinecekBiletler() {
         List<SilinecekBiletDto> silinecekBiletDtoList = new ArrayList<>();
         List<KullaniciBiletEntity> kullaniciBiletEntityList =
                 kullaniciBiletRepository.findByIptalIstendiMiTrue();
 
-<<<<<<< Updated upstream
-
-        SeansKoltukBiletEntity seansKoltukBilet;
-        EtkinlikSalonSeansEntity etkinlikSalonSeans;
-
-        for(KullaniciBiletEntity kb:kullaniciBiletEntityList)
-        {
-            if (!kb.getBilet().isIptalEdildiMi())
-            {
-                seansKoltukBilet=seansKoltukBiletRepository.findSeansKoltukBiletEntityByBilet(kb.getBilet());
-                etkinlikSalonSeans=etkinlikSalonSeansRepository.findEtkinlikSalonSeansEntityBySeans(seansKoltukBilet.getSeans());
-
-                silinecekBiletDtoList.add(new SilinecekBiletDto(
-                        new KullaniciDtoForSilinecekBiletDto(kb.getKullanici().getKullaniciAdi(),kb.getKullanici().getEmail()),
-                        new BiletDto(
-                                kb.getBilet().getBiletID(),
-                                kb.getBilet().getOdenenMiktar(),
-                                seansKoltukBilet.getKoltuk().getKoltukNumarasi(),
-                                etkinlikSalonSeans.getEtkinlik().getEtkinlikAdi(),
-                                new SehirDto(etkinlikSalonSeans.getEtkinlik().getSehir().getPlakaKodu(),etkinlikSalonSeans.getEtkinlik().getSehir().getSehirAdi()),
-                                new SalonDto(etkinlikSalonSeans.getSalon().getSalonID(),etkinlikSalonSeans.getSalon().getSalonAdi(),etkinlikSalonSeans.getSalon().getAdres()),
-                                etkinlikSalonSeans.getSeans()
-                        )
-                ));
-            }
-            }
-=======
         for (KullaniciBiletEntity kb : kullaniciBiletEntityList) {
             // 1) Bilet’e ait SeansKoltukBiletEntity’yi al
-            Optional<SeansKoltukBiletEntity> opt =
+            Optional<SeansKoltukBiletEntity> optSkb =
                     seansKoltukBiletRepository.findByBilet(kb.getBilet());
-            if (opt.isEmpty()) {
-                // log uyarı
-                continue;
-            }
-            SeansKoltukBiletEntity seansKoltukBilet = opt.get();
-            if (seansKoltukBilet == null) {
-                // log basıp bu kaydı atla
+            if (optSkb.isEmpty()) {
                 System.err.println("Uyarı: SeansKoltukBiletEntity bulunamadı for BiletID="
                         + kb.getBilet().getBiletID());
                 continue;
             }
+            SeansKoltukBiletEntity skb = optSkb.get();
 
-            // 2) Seans bilgisini al ve kontrol et
-            SeansEntity seans = seansKoltukBilet.getSeans();
+            // 2) Seans’a ait EtkinlikSalonSeansEntity’yi al
+            SeansEntity seans = skb.getSeans();
             if (seans == null) {
                 System.err.println("Uyarı: SeansEntity null! SeansKoltukBiletID="
-                        + seansKoltukBilet.getSeansKoltukBiletID());
+                        + skb.getSeansKoltukBiletID());
                 continue;
             }
 
-            // 3) Seans’a ait EtkinlikSalonSeansEntity’yi al
-            EtkinlikSalonSeansEntity etkinlikSalonSeans =
+            EtkinlikSalonSeansEntity ess =
                     etkinlikSalonSeansRepository.findEtkinlikSalonSeansEntityBySeans(seans);
-            if (etkinlikSalonSeans == null) {
+            if (ess == null) {
                 System.err.println("Uyarı: EtkinlikSalonSeansEntity bulunamadı for SeansID="
                         + seans.getSeansID());
                 continue;
             }
 
-            // 4) Tüm gerekli veriler hazır, DTO’yu oluştur
+            // 3) DTO oluştur
             silinecekBiletDtoList.add(new SilinecekBiletDto(
                     new KullaniciDtoForSilinecekBiletDto(
                             kb.getKullanici().getKullaniciAdi(),
                             kb.getKullanici().getEmail()
                     ),
                     new BiletDto(
-                                                kb.getBilet().getBiletID(),
-                            seansKoltukBilet.getKoltuk().getKoltukNumarasi(),
-                            etkinlikSalonSeans.getEtkinlik().getEtkinlikAdi(),
+                            kb.getBilet().getBiletID(),
+                            skb.getKoltuk().getKoltukNumarasi(),
+                            ess.getEtkinlik().getEtkinlikAdi(),
                             new SehirDto(
-                                                        etkinlikSalonSeans.getEtkinlik().getSehir().getPlakaKodu(),
-                                                        etkinlikSalonSeans.getEtkinlik().getSehir().getSehirAdi()
-                                                ),
+                                    ess.getEtkinlik().getSehir().getPlakaKodu(),
+                                    ess.getEtkinlik().getSehir().getSehirAdi()
+                            ),
                             new SalonDto(
-                                                        etkinlikSalonSeans.getSalon().getSalonID(),
-                                                        etkinlikSalonSeans.getSalon().getSalonAdi(),
-                                                        etkinlikSalonSeans.getSalon().getAdres()
-                                                ),
+                                    ess.getSalon().getSalonID(),
+                                    ess.getSalon().getSalonAdi(),
+                                    ess.getSalon().getAdres()
+                            ),
                             seans,
-                            kb.getBilet().getOdenenMiktar()  // SeansEntity doğrudan DTO’ya geçiyor
-                                        )
+                            kb.getBilet().getOdenenMiktar()
+                    )
             ));
         }
->>>>>>> Stashed changes
 
         return silinecekBiletDtoList;
     }
 
-<<<<<<< Updated upstream
-    public boolean biletSil(Long biletId) {
-        Optional<BiletEntity> optionalBilet = biletRepository.findByBiletID(biletId);
-
-        if (optionalBilet.isPresent()) {
-            BiletEntity bilet = optionalBilet.get();
-
-            bilet.setIptalEdildiMi(true);
-            SeansKoltukBiletEntity seansKoltukBilet=seansKoltukBiletRepository.findSeansKoltukBiletEntityByBilet(bilet);
-            seansKoltukBilet.setKoltukdurumu(false);
-            seansKoltukBilet.setBilet(null);
-            seansKoltukBiletRepository.save(seansKoltukBilet);
-            biletRepository.save(bilet);
-
-            KullaniciBiletEntity kullaniciBiletEntity=kullaniciBiletRepository.findByBilet(bilet);
-
-            mailService.biletIptaliSendMail(kullaniciBiletEntity.getKullanici().getEmail(), biletId);
-
-            return true;
-        }
-
-        return false;
-=======
-
     @Transactional
     public boolean biletSil(Long biletId) {
-        if (!biletRepository.existsById(biletId)) {
+        Optional<BiletEntity> optionalBilet = biletRepository.findByBiletID(biletId);
+        if (optionalBilet.isEmpty()) {
             return false;
         }
-        biletRepository.deleteById(biletId);
+
+        BiletEntity bilet = optionalBilet.get();
+        // işaretle: iptal edildi
+        bilet.setIptalEdildiMi(true);
+
+        // koltuğu serbest bırak
+        Optional<SeansKoltukBiletEntity> optSkb =
+                seansKoltukBiletRepository.findByBilet(bilet);
+        optSkb.ifPresent(skb -> {
+            skb.setKoltukdurumu(false);
+            skb.setBilet(null);
+            seansKoltukBiletRepository.save(skb);
+        });
+
+        biletRepository.save(bilet);
+
+        // mail gönder
+        kullaniciBiletRepository.findByBilet(bilet)
+                .ifPresent(kb -> mailService.biletIptaliSendMail(
+                        kb.getKullanici().getEmail(),
+                        biletId
+                ));
+
         return true;
->>>>>>> Stashed changes
     }
-
-
-
-
 }

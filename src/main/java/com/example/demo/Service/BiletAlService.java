@@ -79,7 +79,8 @@ public class BiletAlService {
         if (optionalBilet.isPresent())
         {
             BiletEntity bilet=optionalBilet.get();
-            KullaniciBiletEntity kullaniciBiletEntity = kullaniciBiletRepository.findByBilet(bilet);
+            Optional<KullaniciBiletEntity> optKb = kullaniciBiletRepository.findByBilet(bilet);
+            KullaniciBiletEntity kullaniciBiletEntity = optKb.get();
             if (kullanici==kullaniciBiletEntity.getKullanici())
             {
                 kullaniciBiletEntity.setIptalIstendiMi(true);

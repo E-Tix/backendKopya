@@ -11,14 +11,8 @@ public class BiletEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long biletID;
 
-<<<<<<< Updated upstream
-    @Column
-    private boolean iptalEdildiMi;
 
     @Column(name = "odendiMi",nullable = false)
-=======
-    @Column(nullable = false)
->>>>>>> Stashed changes
     private Boolean odendiMi = false;
 
     @Column
@@ -43,6 +37,9 @@ public class BiletEntity {
     @CreationTimestamp
     @Column(updatable = false)
     private Timestamp olusturmaZamani;
+
+    @Column(name = "iptalEdildiMi", nullable = false)
+    private boolean iptalEdildiMi = false;
 
     public BiletEntity(Long biletID, boolean iptalEdildiMi, Boolean odendiMi, Float odenenMiktar, KullaniciBiletEntity kullaniciBilet, Timestamp olusturmaZamani) {
         this.biletID = biletID;
@@ -135,11 +132,5 @@ public class BiletEntity {
         this.seansKoltukBilet = seansKoltukBilet;
     }
 
-    public KullaniciBiletEntity getKullaniciBilet() {
-        return kullaniciBilet;
-    }
 
-    public void setKullaniciBilet(KullaniciBiletEntity kullaniciBilet) {
-        this.kullaniciBilet = kullaniciBilet;
-    }
 }
