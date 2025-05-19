@@ -1,5 +1,6 @@
 package com.example.demo.Entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Fetch;
 import org.springframework.context.annotation.Lazy;
@@ -16,8 +17,9 @@ public class KullaniciEntity {
     private Long kullaniciID;
     @ManyToOne
     private SehirEntity sehir;
-    
-    @OneToMany(mappedBy = "kullanici")
+
+    @OneToMany(mappedBy = "kullanici", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<KullaniciBiletEntity> kullaniciBiletEntityList;
 
     @Column(name = "kullaniciAdi",nullable = false,unique = true)

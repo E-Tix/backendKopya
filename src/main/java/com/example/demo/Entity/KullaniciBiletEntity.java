@@ -1,19 +1,19 @@
 package com.example.demo.Entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "kullanici_bilet",uniqueConstraints = @UniqueConstraint(columnNames = {"bilet_biletid","kullanici_kullaniciid"}))
 public class KullaniciBiletEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long kullaniciBiletID;
 
     @ManyToOne
     private KullaniciEntity kullanici;
 
     @OneToOne
+    @JoinColumn(name = "bilet_biletid")
     private BiletEntity bilet;
 
     @Column

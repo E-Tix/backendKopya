@@ -15,11 +15,14 @@ import java.util.Optional;
 public interface KullaniciBiletRepository extends JpaRepository<KullaniciBiletEntity, Long> {
 
     @Query("""
-    SELECT kb.bilet FROM KullaniciBiletEntity kb
-    WHERE kb.kullanici.kullaniciID = :kullaniciId
-""")
+      SELECT kb.bilet 
+      FROM KullaniciBiletEntity kb 
+      WHERE kb.kullanici.kullaniciID = :kullaniciId
+        AND kb.iptalIstendiMi = false
+    """)
     List<BiletEntity> findBiletlerByKullanici(@Param("kullaniciId") Long kullaniciId);
     //BiletEntity findBiletByKullaniciAndBilet(Long kullaniciId, Long biletId);
+    Optional<KullaniciBiletEntity> findByBilet_BiletID(Long biletID);
 
     @Query("""
     SELECT kb.bilet, ess.etkinlik, ess.salon, ess.seans

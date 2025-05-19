@@ -34,9 +34,10 @@ public class OrganizatorLandingService {
     private final SinemaRepository sinemaRepository;
     private final KullaniciBiletRepository kullaniciBiletRepository;
     private final BiletRepository biletRepository;
+    private final EtkinlikService etkinlikService;
 
     @Autowired
-    public OrganizatorLandingService(BiletRepository biletRepository, KullaniciBiletRepository kullaniciBiletRepository, SeansKoltukBiletRepository seansKoltukBiletRepository,KoltukRepository koltukRepository,OrganizatorRepository organizatorRepository, EtkinlikRepository etkinlikRepository, SeansRepository seansRepository, SalonRepository salonRepository, EtkinlikSalonSeansRepository etkinlikSalonSeansRepository, SehirRepository sehirRepository, SinemaRepository sinemaRepository) {
+    public OrganizatorLandingService(BiletRepository biletRepository, KullaniciBiletRepository kullaniciBiletRepository, SeansKoltukBiletRepository seansKoltukBiletRepository,KoltukRepository koltukRepository,OrganizatorRepository organizatorRepository, EtkinlikRepository etkinlikRepository, SeansRepository seansRepository, SalonRepository salonRepository, EtkinlikSalonSeansRepository etkinlikSalonSeansRepository, SehirRepository sehirRepository, SinemaRepository sinemaRepository, EtkinlikService etkinlikService) {
         this.kullaniciBiletRepository=kullaniciBiletRepository;
         this.biletRepository=biletRepository;
         this.seansKoltukBiletRepository=seansKoltukBiletRepository;
@@ -48,6 +49,7 @@ public class OrganizatorLandingService {
         this.etkinlikSalonSeansRepository = etkinlikSalonSeansRepository;
         this.sehirRepository = sehirRepository;
         this.sinemaRepository = sinemaRepository;
+        this.etkinlikService = etkinlikService;
     }
 
 
@@ -102,7 +104,7 @@ public class OrganizatorLandingService {
                 seansKoltukBiletRepository.save(new SeansKoltukBiletEntity(s,k,false));
             }
         }
-
+        etkinlikService.scheduleTarihiGecti(etkinlik.getEtkinlikID());
         return etkinlik;
     }
 
@@ -178,6 +180,7 @@ public class OrganizatorLandingService {
         etkinlik.setYasSiniri(etkinlikGuncelleDto.getYasSiniri());
 
         etkinlikRepository.save(etkinlik);
+        etkinlikService.scheduleTarihiGecti(etkinlik.getEtkinlikID());
 
         return etkinlik;
     }
@@ -237,7 +240,8 @@ public class OrganizatorLandingService {
                     etkinlikSalonSeansEntities,
                     etkinlik.getEtkinlikSuresi(),
                     etkinlik.getEtkinlikAciklamasi(),
-                    etkinlik.getOrganizator()
+                    etkinlik.getOrganizator(),
+                    etkinlik.isTarihiGectiMi()
             );
         }else {
             throw new EntityNotFoundException("etkinlik bulunamadı");
@@ -281,7 +285,8 @@ public class OrganizatorLandingService {
                     etkinlikEntity.getYasSiniri(),
                     etkinlikEntity.getKapakFotografi(),
                     etkinlikTurAdi,
-                    mappedSinemaId // <<< YENİ: sinemaId DTO'ya aktarılıyor >>>
+                    mappedSinemaId, // <<< YENİ: sinemaId DTO'ya aktarılıyor >>>
+                    etkinlikEntity.isTarihiGectiMi()
             );
         });
     }
@@ -338,7 +343,8 @@ public class OrganizatorLandingService {
             e.getYasSiniri(),
             e.getKapakFotografi(),
             etkinlikTuruAdi,
-            mappedSinemaId
+            mappedSinemaId,
+                e.isTarihiGectiMi()
         );
     }
 

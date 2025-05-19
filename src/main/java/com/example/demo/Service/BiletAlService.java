@@ -3,6 +3,7 @@ package com.example.demo.Service;
 import com.example.demo.Dto.Request.BiletAlDto;
 import com.example.demo.Entity.*;
 import com.example.demo.Repository.*;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,30 +31,42 @@ public class BiletAlService {
         this.seansRepository = seansRepository;
         this.koltukRepository = koltukRepository;
     }
+
     @Transactional
-    public boolean biletAl(BiletAlDto biletAlDto, Long kullaniciId) {
+    public boolean biletAl(BiletAlDto dto, Long kullaniciId) {
+        // 1) Seans ve Koltuk nesnelerini al
+        SeansEntity seans = seansRepository.findById(dto.getSeansId())
+                .orElseThrow(() -> new EntityNotFoundException("Seans bulunamadı"));
+        KoltukEntity koltuk = koltukRepository.findById(dto.getKoltukId())
+                .orElseThrow(() -> new EntityNotFoundException("Koltuk bulunamadı"));
 
-        //satın alınmış biletin tekrar satın alınmaması için bir kontrol daha ekle
+        // 2) Seans-Koltuk tablosundaki kaydı bul
+        SeansKoltukBiletEntity skb = seansKoltukBiletRepository
+                .findBySeansAndKoltuk(seans, koltuk)
+                .orElseThrow(() -> new EntityNotFoundException("Bu seans+koltuk kaydı yok"));
 
-        BiletEntity bilet = biletRepository.save(
-                new BiletEntity(biletAlDto.isOdendiMi(), biletAlDto.getOdenenMiktar())
-        );
+        // zaten dolu mu?
+        if (skb.getBilet() != null) {
+            throw new IllegalStateException("Bu koltuk zaten satın alınmış");
+        }
 
-        // DTO içinden ID almak yerine parametreyi kullan
-        KullaniciEntity kullanici = kullaniciRepository.findById(kullaniciId)
-                .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
-
-        kullaniciBiletRepository.save(new KullaniciBiletEntity(kullanici, bilet, false));
-
-        SeansEntity seans = seansRepository.findBySeansID(biletAlDto.getSeansId());
-        KoltukEntity koltuk = koltukRepository.findByKoltukID(biletAlDto.getKoltukId());
-        SeansKoltukBiletEntity skb = seansKoltukBiletRepository.findSeansKoltukBiletEntityBySeansAndKoltuk(seans, koltuk);
-
+        // 3) Yeni BiletEntity oluşturup ilişkilendir
+        BiletEntity bilet = new BiletEntity(dto.isOdendiMi(), dto.getOdenenMiktar());
         skb.setBilet(bilet);
         skb.setKoltukdurumu(true);
+        bilet.setSeansKoltukBilet(skb);
 
-        seansKoltukBiletRepository.save(skb);
+        // 4) Kullanıcı–Bilet ilişkisini oluştur
+        KullaniciEntity user = kullaniciRepository.findById(kullaniciId)
+                .orElseThrow(() -> new EntityNotFoundException("Kullanıcı bulunamadı"));
+        KullaniciBiletEntity kb = new KullaniciBiletEntity(user, bilet, false);
+        bilet.setKullaniciBilet(kb);
+        user.getKullaniciBiletEntityList().add(kb);
 
+        // 5) Kaydet: cascade persist ayarınız varsa sadece biletRepo.save yeterli.
+        biletRepository.save(bilet);
+
+        // 6) Son adım: dış servisi çağırın
         satinAlService.satinAl();
 
         return true;

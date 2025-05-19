@@ -1,85 +1,88 @@
 package com.example.demo.Dto.Response;
 
+import com.example.demo.Dto.Request.SeansDto;
 import com.example.demo.Entity.SeansEntity;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.sql.Timestamp;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class BiletDto {
     private Long biletId;
-    private int koltukNo;
+    private Integer koltukNo;
     private String etkinlikAdi;
     private SehirDto sehirDto;
     private SalonDto salonDto;
-    //burayı düzelt
-    private SeansEntity seansEntity;
+    private SeansEntity seans;
+
+    // JSON’da "seansEntity" olarak gelsin diye burayı isimlendiriyoruz:
+    @JsonProperty("seansEntity")
+    private SeansDto seansEntity;
+
     private Float odenenMiktar;
 
-    public BiletDto(Long biletId,Float odenenMiktar, int koltukNo, String etkinlikAdi, SehirDto sehirDto, SalonDto salonDto, SeansEntity seansEntity) {
+    public BiletDto(
+            Long biletId,
+            Integer koltukNo,
+            String etkinlikAdi,
+            SehirDto sehirDto,
+            SalonDto salonDto,
+            SeansDto seansEntity,
+            Float odenenMiktar
+    ) {
         this.biletId = biletId;
-        this.odenenMiktar = odenenMiktar;
         this.koltukNo = koltukNo;
         this.etkinlikAdi = etkinlikAdi;
         this.sehirDto = sehirDto;
         this.salonDto = salonDto;
         this.seansEntity = seansEntity;
+        this.odenenMiktar = odenenMiktar;
     }
 
-    public BiletDto() {
+    public BiletDto(Long biletId, Integer koltukNo, String etkinlikAdi, SehirDto sehirDto, SalonDto salonDto, SeansEntity seans, Float odenenMiktar) {
+        this.biletId = biletId;
+        this.koltukNo = koltukNo;
+        this.etkinlikAdi = etkinlikAdi;
+        this.sehirDto = sehirDto;
+        this.salonDto = salonDto;
+        this.seans = seans;
+        this.odenenMiktar = odenenMiktar;
+    }
+
+    public SeansEntity getSeans() {
+        return seans;
+    }
+
+    public void setSeans(SeansEntity seans) {
+        this.seans = seans;
     }
 
     public Long getBiletId() {
         return biletId;
     }
 
-    public void setBiletId(Long biletId) {
-        this.biletId = biletId;
-    }
-
-    public int getKoltukNo() {
+    public Integer getKoltukNo() {
         return koltukNo;
-    }
-
-    public void setKoltukNo(int koltukNo) {
-        this.koltukNo = koltukNo;
     }
 
     public String getEtkinlikAdi() {
         return etkinlikAdi;
     }
 
-    public void setEtkinlikAdi(String etkinlikAdi) {
-        this.etkinlikAdi = etkinlikAdi;
-    }
-
     public SehirDto getSehirDto() {
         return sehirDto;
-    }
-
-    public void setSehirDto(SehirDto sehirDto) {
-        this.sehirDto = sehirDto;
     }
 
     public SalonDto getSalonDto() {
         return salonDto;
     }
 
-    public void setSalonDto(SalonDto salonDto) {
-        this.salonDto = salonDto;
-    }
-
-    public SeansEntity getSeansEntity() {
+    // Sadece bu tek getter kalsın:
+    public SeansDto getSeansEntity() {
         return seansEntity;
-    }
-
-    public void setSeansEntity(SeansEntity seansEntity) {
-        this.seansEntity = seansEntity;
     }
 
     public Float getOdenenMiktar() {
         return odenenMiktar;
-    }
-
-    public void setOdenenMiktar(Float odenenMiktar) {
-        this.odenenMiktar = odenenMiktar;
     }
 }

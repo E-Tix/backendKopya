@@ -90,7 +90,8 @@ public class LandingService {
                     etkinlik.getEtkinlikSuresi(),
                     etkinlik.getEtkinlikAciklamasi(),
                     etkinlik.getOrganizator(),
-                    etkinlik.getKapakFotografi()
+                    etkinlik.getKapakFotografi(),
+                    etkinlik.isTarihiGectiMi()
             );
         } else {
             return null;
@@ -132,7 +133,16 @@ public class LandingService {
         SinemaEntity sinema = sinemaRepository.findByEtkinlik(etkinlik);
         List<EtkinlikSalonSeansEntity> etkinlikSalonSeansEntities = etkinlikSalonSeansRepository.findEtkinlikSalonSeansEntitiesByEtkinlik(etkinlik);
 
-        return new SinemaDetayDto(sinema.getSinemaID(), new EtkinlikDetayDto(etkinlik.getEtkinlikID(), etkinlik.getEtkinlikAdi(), etkinlik.getBiletFiyati(),etkinlik.getYasSiniri(),etkinlik.getEtkinlikTur(),etkinlikSalonSeansEntities,etkinlik.getEtkinlikSuresi(), etkinlik.getEtkinlikAciklamasi(), etkinlik.getOrganizator(),etkinlik.getKapakFotografi()), sinema.getFragmanLinki(), sinema.getImdbPuani());
+        return new SinemaDetayDto(sinema.getSinemaID(),
+                new EtkinlikDetayDto(etkinlik.getEtkinlikID(), etkinlik.getEtkinlikAdi(),
+                        etkinlik.getBiletFiyati(), etkinlik.getYasSiniri(),
+                        etkinlik.getEtkinlikTur(), etkinlikSalonSeansEntities,
+                        etkinlik.getEtkinlikSuresi(), etkinlik.getEtkinlikAciklamasi(),
+                        etkinlik.getOrganizator(), etkinlik.getKapakFotografi(),
+                        etkinlik.isTarihiGectiMi()
+                ),
+                sinema.getFragmanLinki(),
+                sinema.getImdbPuani());
     }
 
     public List<AramaDto> etkinlikAra(String arananEtkinlikAdi)

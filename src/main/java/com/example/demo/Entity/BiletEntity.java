@@ -7,25 +7,41 @@ import java.sql.Timestamp;
 @Entity
 @Table(name = "Bilet")
 public class BiletEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long biletID;
 
+<<<<<<< Updated upstream
     @Column
     private boolean iptalEdildiMi;
 
     @Column(name = "odendiMi",nullable = false)
+=======
+    @Column(nullable = false)
+>>>>>>> Stashed changes
     private Boolean odendiMi = false;
 
-    @Column(name = "odenenMiktar")
+    @Column
     private Float odenenMiktar;
 
-    @OneToOne(mappedBy = "bilet")
+    // 1:1 SeansKoltukBilet → Bilet
+    @OneToOne(
+            mappedBy = "bilet",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private SeansKoltukBiletEntity seansKoltukBilet;
+
+    // 1:1 KullaniciBilet → Bilet
+    @OneToOne(
+            mappedBy = "bilet",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
     private KullaniciBiletEntity kullaniciBilet;
 
     @CreationTimestamp
-    @Column(name = "olusturulmaZamani")
+    @Column(updatable = false)
     private Timestamp olusturmaZamani;
 
     public BiletEntity(Long biletID, boolean iptalEdildiMi, Boolean odendiMi, Float odenenMiktar, KullaniciBiletEntity kullaniciBilet, Timestamp olusturmaZamani) {
@@ -109,5 +125,21 @@ public class BiletEntity {
 
     public void setOlusturmaZamani(Timestamp olusturmaZamani) {
         this.olusturmaZamani = olusturmaZamani;
+    }
+
+    public SeansKoltukBiletEntity getSeansKoltukBilet() {
+        return seansKoltukBilet;
+    }
+
+    public void setSeansKoltukBilet(SeansKoltukBiletEntity seansKoltukBilet) {
+        this.seansKoltukBilet = seansKoltukBilet;
+    }
+
+    public KullaniciBiletEntity getKullaniciBilet() {
+        return kullaniciBilet;
+    }
+
+    public void setKullaniciBilet(KullaniciBiletEntity kullaniciBilet) {
+        this.kullaniciBilet = kullaniciBilet;
     }
 }

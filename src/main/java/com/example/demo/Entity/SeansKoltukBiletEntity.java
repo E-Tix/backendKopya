@@ -5,21 +5,18 @@ import jakarta.persistence.*;
 @Entity
 @Table(name = "seansKoltukBilet")
 public class SeansKoltukBiletEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long seansKoltukBiletID;
 
+    @ManyToOne
+    private SeansEntity seans;
 
     @ManyToOne
-    SeansEntity seans;
+    private KoltukEntity koltuk;
 
-    //koltukEntitysinde ilişki olacak mı
-    @ManyToOne
-    KoltukEntity koltuk;
-
-    //biletEntitysinde ilişki olacak mı
     @OneToOne
-    BiletEntity bilet;
+    @JoinColumn(name = "bilet_biletid")
+    private BiletEntity bilet;
 
     @Column(name = "koltukDurumu")
     private boolean koltukdurumu;

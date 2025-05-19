@@ -10,9 +10,11 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface EtkinlikSalonSeansRepository extends JpaRepository<EtkinlikSalonSeansEntity, Long> {
+    Optional<EtkinlikSalonSeansEntity> findByEtkinlikAndSeans(EtkinlikEntity e, SeansEntity s);
 
     @Query("""
     SELECT DISTINCT ess.salon FROM EtkinlikSalonSeansEntity ess

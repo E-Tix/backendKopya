@@ -2,6 +2,7 @@ package com.example.demo.Service;
 
 import com.example.demo.Dto.Request.ChangePasswordDto;
 import com.example.demo.Dto.KullaniciProfiliDto;
+import com.example.demo.Dto.Request.SeansDto;
 import com.example.demo.Dto.Response.BiletDto;
 import com.example.demo.Dto.Response.SalonDto;
 import com.example.demo.Dto.Response.SehirDto;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class KullaniciService {
@@ -74,14 +76,13 @@ public class KullaniciService {
         }
     }
 
-    public List<BiletDto> getBiletler(Long kullaniciId)
-    {
+    public List<BiletDto> getBiletler(Long kullaniciId) {
         List<BiletDto> biletDtoList = new ArrayList<>();
-        List<BiletEntity> kullaniciyaAitBiletler =kullaniciBiletRepository.findBiletlerByKullanici(kullaniciId);
 
-        SeansKoltukBiletEntity seansKoltukBilet;
-        EtkinlikSalonSeansEntity etkinlikSalonSeans;
+        List<BiletEntity> kullaniciyaAitBiletler =
+                kullaniciBiletRepository.findBiletlerByKullanici(kullaniciId);
 
+<<<<<<< Updated upstream
         for (BiletEntity b:kullaniciyaAitBiletler)
         {
             if (!b.isIptalEdildiMi()||!kullaniciBiletRepository.findByBilet_BiletID(b.getBiletID()).isIptalIstendiMi())
@@ -99,10 +100,57 @@ public class KullaniciService {
                         etkinlikSalonSeans.getSeans()
                 ));
             }
+=======
+        for (BiletEntity b : kullaniciyaAitBiletler) {
+            // artık Optional dönüyor:
+            Optional<SeansKoltukBiletEntity> optSkb = seansKoltukBiletRepository.findByBilet(b);
+            if (optSkb.isEmpty()) {
+                // log veya warn atıp atlıyoruz
+                System.err.println("Uyarı: SeansKoltukBiletEntity bulunamadı for BiletID=" + b.getBiletID());
+                continue;
+            }
+            SeansKoltukBiletEntity skb = optSkb.get();
+
+            EtkinlikSalonSeansEntity ess = etkinlikSalonSeansRepository
+                    .findEtkinlikSalonSeansEntityBySeans(skb.getSeans());
+            if (ess == null) {
+                System.err.println("Uyarı: EtkinlikSalonSeansEntity bulunamadı for SeansID=" + skb.getSeans().getSeansID());
+                continue;
+            }
+
+            // Seans → SeansDto
+            SeansEntity seansEnt = ess.getSeans();
+            SeansDto seansDto = new SeansDto(
+                    seansEnt.getSeansID(),
+                    seansEnt.getTarih(),
+                    seansEnt.getBitisTarih(),
+                    seansEnt.isTarihiGectiMi(),
+                    seansEnt.getOlusturulmaTarihi()
+            );
+
+            biletDtoList.add(new BiletDto(
+                                            b.getBiletID(),
+                    skb.getKoltuk().getKoltukNumarasi(),
+                    ess.getEtkinlik().getEtkinlikAdi(),
+                    new SehirDto(
+                                                    ess.getEtkinlik().getSehir().getPlakaKodu(),
+                                                    ess.getEtkinlik().getSehir().getSehirAdi()
+                                            ),
+                    new SalonDto(
+                                                    ess.getSalon().getSalonID(),
+                                                    ess.getSalon().getSalonAdi(),
+                                                    ess.getSalon().getAdres()
+                                            ),
+                    seansDto,
+                    b.getOdenenMiktar()
+                                    ));
+>>>>>>> Stashed changes
         }
 
         return biletDtoList;
     }
+
+
 
     public KullaniciProfiliDto getKullaniciProfili(Long id)
     {

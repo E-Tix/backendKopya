@@ -11,15 +11,19 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface SeansKoltukBiletRepository extends JpaRepository<SeansKoltukBiletEntity, Long> {
+    Optional<SeansKoltukBiletEntity> findBySeansAndKoltuk(SeansEntity seans, KoltukEntity koltuk);
 
     @Query("""
         SELECT skb.bilet FROM SeansKoltukBiletEntity skb
         WHERE skb.seans.seansID = :seansId
     """)
     List<BiletEntity> findBiletlerBySeans(@Param("seansId") Long seansId);
+    Optional<SeansKoltukBiletEntity> findByBilet(BiletEntity bilet);
+    Optional<SeansKoltukBiletEntity> findByBilet_BiletID(Long biletID);
 
     @Query("""
         SELECT DISTINCT s FROM SeansEntity s

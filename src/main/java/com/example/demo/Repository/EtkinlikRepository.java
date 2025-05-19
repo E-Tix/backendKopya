@@ -18,7 +18,8 @@ import java.util.Optional;
 
 @Repository
 public interface EtkinlikRepository extends JpaRepository<EtkinlikEntity,Long> {
-
+    @Query("select e.etkinlikID from EtkinlikEntity e")
+    List<Long> findAllIds();
     EtkinlikEntity findByEtkinlikID(Long id);
 
     List<EtkinlikEntity> findByOrganizator(OrganizatorEntity organizator);
