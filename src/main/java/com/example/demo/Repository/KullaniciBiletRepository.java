@@ -14,6 +14,7 @@ import java.util.Optional;
 @Repository
 public interface KullaniciBiletRepository extends JpaRepository<KullaniciBiletEntity, Long> {
 
+
     @Query("""
     SELECT kb.bilet FROM KullaniciBiletEntity kb
     WHERE kb.kullanici.kullaniciID = :kullaniciId

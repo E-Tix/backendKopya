@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
 import java.util.List;
 
 @Repository
@@ -34,7 +35,7 @@ public interface SeansKoltukBiletRepository extends JpaRepository<SeansKoltukBil
     """)
     List<SeansEntity> findKoltukBySeanslar(@Param("seandsId") Long seansId);*/
 
-
+    Optional<SeansKoltukBiletEntity> findByBilet(BiletEntity bilet);
     @Query("""
         SELECT skb.koltuk FROM SeansKoltukBiletEntity skb
         WHERE skb.seans.seansID = :seandsId

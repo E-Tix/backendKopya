@@ -15,8 +15,6 @@ public class EtkinlikEntity {
 
     //@OneToMany(mappedBy = "etkinlik")
     //private List<EtkinlikSalonSeansEntity> etkinlikSalonSeansEntityList;
-    @Column
-    private Boolean etkinlikSilindiMi;
 
     @ManyToOne
     private OrganizatorEntity organizator;
@@ -51,21 +49,6 @@ public class EtkinlikEntity {
 
     @Column(name = "biletFiyati",nullable = false)
     private float biletFiyati;
-    public EtkinlikEntity(Long etkinlikID, boolean etkinlikSilindiMi, OrganizatorEntity organizator, EtkinlikTurEntity etkinlikTur, SehirEntity sehir, String etkinlikAdi, String kapakFotografi, String etkinlikAciklamasi, int yasSiniri, int etkinlikSuresi, Timestamp olusturulmaTarihi, boolean tarihiGectiMi, float biletFiyati) {
-        this.etkinlikID = etkinlikID;
-        this.etkinlikSilindiMi = etkinlikSilindiMi;
-        this.organizator = organizator;
-        this.etkinlikTur = etkinlikTur;
-        this.sehir = sehir;
-        this.etkinlikAdi = etkinlikAdi;
-        this.kapakFotografi = kapakFotografi;
-        this.etkinlikAciklamasi = etkinlikAciklamasi;
-        this.yasSiniri = yasSiniri;
-        this.etkinlikSuresi = etkinlikSuresi;
-        this.olusturulmaTarihi = olusturulmaTarihi;
-        this.tarihiGectiMi = tarihiGectiMi;
-        this.biletFiyati = biletFiyati;
-    }
     public EtkinlikEntity(Long etkinlikID, OrganizatorEntity organizator, EtkinlikTurEntity etkinlikTur, SehirEntity sehir, String etkinlikAdi, String kapakFotografi, String etkinlikAciklamasi, int yasSiniri, int etkinlikSuresi, Timestamp olusturulmaTarihi, boolean tarihiGectiMi, float biletFiyati) {
         this.etkinlikID = etkinlikID;
         this.organizator = organizator;
@@ -172,13 +155,6 @@ public class EtkinlikEntity {
         return olusturulmaTarihi;
     }
 
-    public boolean getEtkinlikSilindiMi() {
-        return etkinlikSilindiMi;
-    }
-
-    public void setEtkinlikSilindiMi(boolean etkinlikSilindiMi) {
-        this.etkinlikSilindiMi = etkinlikSilindiMi;
-    }
 
     public void setOlusturulmaTarihi(Timestamp olusturulmaTarihi) {
         this.olusturulmaTarihi = olusturulmaTarihi;
