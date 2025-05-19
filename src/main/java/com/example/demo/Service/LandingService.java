@@ -57,17 +57,17 @@ public class LandingService {
         Pageable pageable = PageRequest.of(page, size, Sort.by("olusturulmaTarihi").descending());
 
         if(etkinlikTurAdi==null && sehirAdi==null){
-            return etkinlikRepository.findAll(pageable);
+            return etkinlikRepository.findAllByTarihiGectiMi(false, pageable);
         } else if (sehirAdi==null) {
             EtkinlikTurEntity etkinlikTur = etkinlikTurRepository.findByEtkinlikTurAdi(etkinlikTurAdi);
-            return etkinlikRepository.findByEtkinlikTur(etkinlikTur,pageable);
+            return etkinlikRepository.findByEtkinlikTurAndTarihiGectiMi(etkinlikTur,false, pageable);
         } else if (etkinlikTurAdi==null) {
             SehirEntity sehir = sehirRepository.findBySehirAdi(sehirAdi);
-            return etkinlikRepository.findBySehir(sehir,pageable);
+            return etkinlikRepository.findBySehirAndTarihiGectiMi(sehir,false,pageable);
         }else {
             EtkinlikTurEntity etkinlikTur = etkinlikTurRepository.findByEtkinlikTurAdi(etkinlikTurAdi);
             SehirEntity sehir = sehirRepository.findBySehirAdi(sehirAdi);
-            return etkinlikRepository.findBySehirAndEtkinlikTur(sehir, etkinlikTur, pageable);
+            return etkinlikRepository.findBySehirAndEtkinlikTurAndTarihiGectiMi(sehir, etkinlikTur,false, pageable);
         }
     }
 

@@ -16,7 +16,7 @@ public class EtkinlikEntity {
     //@OneToMany(mappedBy = "etkinlik")
     //private List<EtkinlikSalonSeansEntity> etkinlikSalonSeansEntityList;
     @Column
-    private Boolean etkinlikSilindiMi = false;
+    private Boolean etkinlikSilindiMi;
 
     @ManyToOne
     private OrganizatorEntity organizator;

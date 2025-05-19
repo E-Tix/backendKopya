@@ -44,10 +44,15 @@ public interface EtkinlikRepository extends JpaRepository<EtkinlikEntity,Long> {
 
     //Pageleme için
     Page<EtkinlikEntity> findAll(Pageable pageable);
+    Page<EtkinlikEntity> findAllByTarihiGectiMi(Boolean tarihiGectiMi, Pageable pageable);
     Page<EtkinlikEntity> findByEtkinlikTur(EtkinlikTurEntity etkinlikTur, Pageable pageable);
+    Page<EtkinlikEntity> findByEtkinlikTurAndTarihiGectiMi(EtkinlikTurEntity etkinlikTur, Boolean tarihiGectiMi, Pageable pageable);
     Page<EtkinlikEntity> findBySehir(SehirEntity sehir, Pageable pageable);
+    Page<EtkinlikEntity> findBySehirAndTarihiGectiMi(SehirEntity sehir, Boolean tarihiGectiMi, Pageable pageable);
     Page<EtkinlikEntity> findBySehirAndEtkinlikTur(SehirEntity sehir, EtkinlikTurEntity etkinlikTur, Pageable pageable);
+    Page<EtkinlikEntity> findBySehirAndEtkinlikTurAndTarihiGectiMi(SehirEntity sehir, EtkinlikTurEntity etkinlikTur, Boolean tarihiGectiMi, Pageable pageable);
     Page<EtkinlikEntity> findByOrganizator(OrganizatorEntity organizator, Pageable pageable);
+    Page<EtkinlikEntity> findByOrganizatorAndTarihiGectiMi(OrganizatorEntity organizator, Boolean tarihiGectiMi, Pageable pageable);
 
     @Query("SELECT e FROM EtkinlikEntity e WHERE LOWER(e.etkinlikAdi) LIKE LOWER(CONCAT('%',:query,'%'))")
     List<EtkinlikEntity> etkinlikAra(@Param("query") String query);
