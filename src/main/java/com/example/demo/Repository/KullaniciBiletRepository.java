@@ -14,29 +14,26 @@ import java.util.Optional;
 @Repository
 public interface KullaniciBiletRepository extends JpaRepository<KullaniciBiletEntity, Long> {
 
-    /**
-     * Kullanıcının, iptal talebi olmayan biletlerini getirir.
-     */
-
-    Optional<KullaniciBiletEntity> findByBilet(BiletEntity biletEntity);
+    @Query("""
+    SELECT kb.bilet FROM KullaniciBiletEntity kb
+    WHERE kb.kullanici.kullaniciID = :kullaniciId
+""")
+    List<BiletEntity> findBiletlerByKullanici(@Param("kullaniciId") Long kullaniciId);
+    //BiletEntity findBiletByKullaniciAndBilet(Long kullaniciId, Long biletId);
 
     @Query("""
-      SELECT kb.bilet 
-      FROM KullaniciBiletEntity kb 
-      WHERE kb.kullanici.kullaniciID = :kullaniciId
-        AND kb.iptalIstendiMi = false
-    """)
-    List<BiletEntity> findBiletlerByKullanici(@Param("kullaniciId") Long kullaniciId);
+    SELECT kb.bilet, ess.etkinlik, ess.salon, ess.seans
+    FROM KullaniciBiletEntity kb
+    JOIN EtkinlikSalonSeansEntity ess
+    WHERE kb.kullanici.kullaniciID = :kullaniciId
+""")
+    List<Object[]> findBiletlerWithEtkinlikSalonSeansByKullanici(@Param("kullaniciId") Long kullaniciId);
 
-    /**
-     * Bir biletId’ye karşılık gelen KullaniciBiletEntity’yi döner.
-     * -> Admin iptal akışında önce bu entity’yi bulup iptalIstendiMi flag’ini set ediyoruz.
-     */
-    Optional<KullaniciBiletEntity> findByBilet_BiletID(Long biletID);
+    Optional<KullaniciBiletEntity> findByBilet(BiletEntity bilet);
+    @Query("SELECT kb FROM KullaniciBiletEntity kb WHERE kb.iptalIstendiMi = true")
+    List<KullaniciBiletEntity> findAllIptalIstendi();
 
-    /**
-     * Sadece iptal talebi olan kayıtları listeler.
-     * -> AdminLandingService.getSilinecekBiletler() için gerekli.
-     */
     List<KullaniciBiletEntity> findByIptalIstendiMiTrue();
+
+    //KullaniciBiletEntity findKullaniciBiletEntityByKullaniciAndBilet(Long kullaniciId, BiletEntity bilet);
 }
